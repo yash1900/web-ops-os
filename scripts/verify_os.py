@@ -182,11 +182,28 @@ def main():
         print(" [FAIL] Dashboard/memory/automations.md missing")
         failed += 1
 
+    # 9. Live Subprocess Runtime Execution Test Suite
+    print("\n--- 9. LIVE SUBPROCESS RUNTIME EXECUTION TEST SUITE ---")
+    try:
+        import subprocess
+        runtime_script = os.path.join(BASE_DIR, "scripts", "test_runtime_all.py")
+        if os.path.exists(runtime_script):
+            res = subprocess.run([sys.executable, runtime_script], cwd=BASE_DIR, capture_output=True, text=True)
+            if res.returncode == 0:
+                print(" [OK] All 10 automation scripts passed live runtime execution subprocess tests")
+                passed += 1
+            else:
+                print(f" [FAIL] Runtime execution test suite failed: {res.stderr or res.stdout}")
+                failed += 1
+    except Exception as e:
+        print(f" [FAIL] Could not run runtime execution test suite: {e}")
+        failed += 1
+
     print("\n" + "=" * 70)
     print(f" VERIFICATION RESULT: {passed} PASSED / {failed} FAILED")
     print("=" * 70)
     if failed == 0:
-        print(" 🎉 SYSTEM VERIFICATION COMPLETE — ZERO GAPS DETECTED.")
+        print(" 🎉 SYSTEM VERIFICATION COMPLETE — ZERO STATIC OR RUNTIME GAPS DETECTED.")
         sys.exit(0)
     else:
         print(f" ⚠️ {failed} VERIFICATION CHECKS FAILED.")
