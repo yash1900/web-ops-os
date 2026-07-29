@@ -28,7 +28,8 @@ import agent_autonomous_runner
 def send_alert_email(failed_sites, total_sites):
     smtp_user = os.environ.get("GMAIL_USER") or os.environ.get("SMTP_USER")
     smtp_pass = os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("SMTP_PASS")
-    email_to = os.environ.get("ALERT_EMAIL_TO") or os.environ.get("EMAIL_TO") or smtp_user
+    email_to = os.environ.get("ALERT_EMAIL_TO") or os.environ.get("EMAIL_TO") or "malhotrayash1900@gmail.com"
+
 
     if not smtp_user or not smtp_pass or not email_to:
         print("[INFO] Email alert credentials not configured in secrets. Skipping email dispatch.")

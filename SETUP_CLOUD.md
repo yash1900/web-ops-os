@@ -45,7 +45,8 @@ Navigate to **GitHub Repo -> Settings -> Secrets and variables -> Actions -> New
 | `GEMINI_API_KEY` | Your Gemini API Key | Used by autonomous AI agent triggers. |
 | `GMAIL_USER` | Your Gmail address | Sender email address for 24/7 downtime alerts. |
 | `GMAIL_APP_PASSWORD` | Google App Password | SMTP authentication (16-char app password). |
-| `ALERT_EMAIL_TO` | `yashmalhotra.space@gmail.com` | Destination inbox for instant downtime/SSL alerts. |
+| `ALERT_EMAIL_TO` | `malhotrayash1900@gmail.com` | Destination inbox for instant downtime/SSL alerts. |
+
 
 ---
 

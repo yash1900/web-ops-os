@@ -237,7 +237,8 @@ def generate_website_manager_html():
       <ul>
         <li><strong>GitHub Repo:</strong> <a href="https://github.com/yash1900/web-ops-os" target="_blank" style="color: #38bdf8;"><code>github.com/yash1900/web-ops-os</code></a></li>
         <li><strong>3-Hour Cloud Cron:</strong> <code>cloud_runner.py</code> pings websites, runs SEO & security scans, and evaluates autonomous agent triggers 24/7.</li>
-        <li><strong>Instant Dark-Mode Email Alerts:</strong> Sends alerts directly to <code>yashmalhotra.space@gmail.com</code> if any site or SSL cert fails while your laptop is closed.</li>
+        <li><strong>Instant Dark-Mode Email Alerts:</strong> Sends alerts directly to <code>malhotrayash1900@gmail.com</code> if any site or SSL cert fails while your laptop is closed.</li>
+
       </ul>
     </div>
 
