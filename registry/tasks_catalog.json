@@ -1,0 +1,46 @@
+{
+  "autonomous_tasks": [
+    {
+      "task_id": "seo_sitemap_regenerate",
+      "agent": "web-seo-rank-agent",
+      "trigger": "interval_weekly",
+      "description": "Scans all public HTML/JSX routes across 4 sites and updates sitemap.xml & robots.txt",
+      "verification": "python scripts/seo_scanner.py",
+      "rollback_command": "git checkout -- sitemap.xml robots.txt"
+    },
+    {
+      "task_id": "seo_broken_link_repair",
+      "agent": "web-seo-rank-agent",
+      "trigger": "on_error_flag",
+      "flag": "HTTP_404_DETECTED",
+      "description": "Detects broken internal/external links and updates routes or redirects",
+      "verification": "python scripts/seo_scanner.py",
+      "rollback_command": "git checkout -- ."
+    },
+    {
+      "task_id": "ui_image_asset_optimize",
+      "agent": "web-ui-ux-agent",
+      "trigger": "interval_monthly",
+      "description": "Audits uncompressed image assets, ensures missing alt attributes are filled with contextual tags",
+      "verification": "python scripts/visual_audit.py",
+      "rollback_command": "git checkout -- ."
+    },
+    {
+      "task_id": "security_dep_audit_patch",
+      "agent": "web-security-error-agent",
+      "trigger": "interval_monthly",
+      "description": "Runs npm audit across JS repos, detects vulnerable packages, updates package.json safely",
+      "verification": "npm run build",
+      "rollback_command": "git checkout -- package.json package-lock.json"
+    },
+    {
+      "task_id": "health_log_triage",
+      "agent": "web-health-crm-agent",
+      "trigger": "on_error_flag",
+      "flag": "ENDPOINT_TIMEOUT_OR_500",
+      "description": "Analyzes endpoint failure logs, inspects serverless function logs, and reports root cause",
+      "verification": "python scripts/health_check.py",
+      "rollback_command": "git checkout -- ."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# Environment secrets & local config
+.env
+.env.local
+*.key
+*.pem
+
+# Python cache & logs
+__pycache__/
+*.pyc
+*.log

@@ -1,0 +1,47 @@
+name: Web-Ops OS 24/7 Cloud Sentinel
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # Runs every 3 hours 24/7 on GitHub Cloud
+  workflow_dispatch: {}      # Manual run button in GitHub UI
+  push:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  run-web-ops-cloud:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ hashFiles('web-ops-os/requirements.txt') }}
+          restore-keys: pip-
+
+      - name: Install dependencies
+        run: |
+          if [ -f web-ops-os/requirements.txt ]; then
+            pip install -r web-ops-os/requirements.txt
+          else
+            pip install urllib3 python-dotenv
+          fi
+
+      - name: Run Web-Ops OS Cloud Sentinel Engine & 24/7 Email Alerts
+        env:
+          PYTHONUNBUFFERED: "1"
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+        run: |
+          cd web-ops-os
+          python scripts/cloud_runner.py

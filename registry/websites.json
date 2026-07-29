@@ -1,0 +1,63 @@
+{
+  "system": "web-ops-os",
+  "version": "1.0.0",
+  "last_updated": "2026-07-28",
+  "managed_websites": [
+    {
+      "site_id": "personal-website",
+      "name": "Yash Malhotra Personal Website",
+      "local_path": "personal-website",
+      "production_url": "https://yashmalhotra.space",
+      "canonical_domain": "yashmalhotra.space",
+      "tech_stack": ["Vite", "React 18", "TypeScript", "Tailwind CSS v3", "Three.js", "shadcn/ui"],
+      "hosting": "Vercel",
+      "vercel_project": "quiet-founder-notes",
+      "github_repo": "github.com/yash1900/quiet-founder-notes",
+      "spec_file": "registry/personal-website.md",
+      "health_endpoint": "https://yashmalhotra.space",
+      "health_status": "healthy"
+    },
+    {
+      "site_id": "isaan-tea",
+      "name": "Isaan Tea International Website",
+      "local_path": "Isaan_Tea_V1",
+      "production_url": "https://isaantea.com",
+      "canonical_domain": "isaantea.com",
+      "tech_stack": ["React 19", "Vite 6", "TypeScript", "Tailwind CSS v4", "Vercel Serverless"],
+      "hosting": "Vercel",
+      "vercel_project": "isaantea",
+      "github_repo": "github.com/yash1900/isaan-tea",
+      "spec_file": "registry/isaan-tea.md",
+      "health_endpoint": "https://isaantea.com",
+      "health_status": "healthy"
+    },
+    {
+      "site_id": "fraterny",
+      "name": "Fraterny Platform & Quest API",
+      "local_path": "fraterny-automation/Fraterny_Nextjs",
+      "production_url": "https://fraterny.com",
+      "canonical_domain": "fraterny.com",
+      "tech_stack": ["Next.js 14", "TypeScript", "Node.js", "Supabase", "GCP VM", "PayPal Webhooks"],
+      "hosting": "Vercel + GCP",
+      "vercel_project": "fraterny-nextjs",
+      "github_repo": "github.com/yash1900/fraterny",
+      "spec_file": "registry/fraterny.md",
+      "health_endpoint": "https://fraterny.com",
+      "health_status": "healthy"
+    },
+    {
+      "site_id": "iconic-homes",
+      "name": "Iconic Homes Tulsi Tower Website",
+      "local_path": "Iconic-homes-Tulsi-tower",
+      "production_url": "https://iconichomesinfracon.in",
+      "canonical_domain": "iconichomesinfracon.in",
+      "tech_stack": ["Static HTML5", "CSS3", "JavaScript", "Google Fonts"],
+      "hosting": "Hostinger / Static",
+      "github_repo": "github.com/yash1900/iconic-homes-tulsi-tower",
+      "spec_file": "registry/iconic-homes.md",
+      "health_endpoint": "https://iconichomesinfracon.in",
+      "health_status": "healthy"
+    }
+  ]
+}
+

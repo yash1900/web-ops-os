@@ -1,0 +1,35 @@
+{
+  "personal-website": {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Yash Malhotra",
+    "url": "https://yashmalhotra.space",
+    "sameAs": [
+      "https://github.com/yash1900",
+      "https://linkedin.com/in/yashmalhotra"
+    ],
+    "jobTitle": "Tech Founder & Modern Operator"
+  },
+  "isaan-tea": {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Isaan Tea International",
+    "url": "https://isaantea.com",
+    "logo": "https://isaantea.com/logo.png",
+    "description": "Premium B2B Tea Export and Blending Solutions"
+  },
+  "fraterny": {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Fraterny",
+    "url": "https://fraterny.com",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Web"
+  },
+  "iconic-homes": {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": "Tulsi Tower - Iconic Homes",
+    "url": "https://iconichomesinfracon.in"
+  }
+}
