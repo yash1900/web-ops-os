@@ -24,13 +24,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ hashFiles('web-ops-os/requirements.txt') }}
+          key: pip-${{ hashFiles('requirements.txt') }}
           restore-keys: pip-
 
       - name: Install dependencies
         run: |
-          if [ -f web-ops-os/requirements.txt ]; then
-            pip install -r web-ops-os/requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
           else
             pip install urllib3 python-dotenv
           fi

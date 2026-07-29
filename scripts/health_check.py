@@ -36,7 +36,7 @@ def check_website(site):
     try:
         req = urllib.request.Request(
             url, 
-            headers={"User-Agent": "WebOpsOS-HealthCheck/1.0 (Automations-OS)"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 WebOpsOS/1.0"}
         )
         with urllib.request.urlopen(req, timeout=10) as response:
             latency = int((time.time() - start_time) * 1000)
