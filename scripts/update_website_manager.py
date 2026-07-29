@@ -1,6 +1,6 @@
 """
 Web-Ops OS Website Manager Auto-Updater
-Dynamically updates web-ops-os/website_manager.html with current commands, architecture, managed sites, and verified system status.
+Dynamically updates web-ops-os/website_manager.html with current commands, architecture, managed sites, AI agent triggers, 24/7 cloud sentinel, and API cost governance.
 """
 
 from datetime import datetime
@@ -38,8 +38,8 @@ def generate_website_manager_html():
         site_rows += f"""
       <tr>
         <td><code>{site_id}</code></td>
-        <td>{name}</td>
-        <td><code>{domain}</code></td>
+        <td><strong>{name}</strong></td>
+        <td><a href="{url}" target="_blank" style="color: #38bdf8; text-decoration: none;"><code>{domain}</code></a></td>
         <td>{tech}</td>
         <td><span class="status-pill status-ok">🟢 200 OK</span></td>
       </tr>"""
@@ -49,7 +49,7 @@ def generate_website_manager_html():
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Website Manager — Complete Interactive Guide</title>
+  <title>Web-Ops OS — Complete System & AI Agent Manual</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -88,7 +88,7 @@ def generate_website_manager_html():
 
     .badge {{
       display: inline-block;
-      padding: 0.25rem 0.75rem;
+      padding: 0.35rem 0.85rem;
       background: var(--primary-glow);
       color: var(--accent);
       border: 1px solid rgba(56, 189, 248, 0.3);
@@ -97,6 +97,13 @@ def generate_website_manager_html():
       font-weight: 600;
       letter-spacing: 0.05em;
       margin-bottom: 1rem;
+    }}
+
+    .cloud-badge {{
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+      margin-left: 0.5rem;
     }}
 
     h1 {{
@@ -110,7 +117,7 @@ def generate_website_manager_html():
 
     .subtitle {{
       color: var(--text-muted);
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }}
 
     .grid {{
@@ -208,29 +215,48 @@ def generate_website_manager_html():
 <body>
 
   <header>
-    <div class="badge">AUTOMATIONS OS — SUB-SYSTEM (PHASE 2 AUTONOMOUS ENGINE)</div>
-    <h1>Website Manager</h1>
-    <div class="subtitle">Operational manual, technical breakdown & auto-updated visual dashboard (Last Updated: {today})</div>
+    <div class="badge">AUTOMATIONS OS — SUB-SYSTEM</div>
+    <div class="badge cloud-badge">☁️ 24/7 GITHUB ACTIONS SENTINEL LIVE</div>
+    <h1>Web-Ops OS User Guide & Architecture</h1>
+    <div class="subtitle">Comprehensive Manual: AI Agent Triggering, 24/7 Cloud Architecture & API Cost Control (Updated: {today})</div>
   </header>
 
   <section class="grid">
     <div class="card">
-      <h3>🚀 How It Works</h3>
-      <p>Website Manager operates on a 3-tier <strong>Deterministic + Autonomous AI Agent Engine</strong>:</p>
+      <h3>🤖 How AI Agents Get Triggered</h3>
+      <p>Specialized AI agents operate on two complementary triggers:</p>
       <ul>
-        <li><strong>Deterministic Scripts:</strong> Health pings, static SEO checks, security audits, auto-fixing, and DOM visual audits run at $0 API cost.</li>
-        <li><strong>Departmental Knowledge:</strong> Specialized AI agents hold deep codebase maps in <code>agents/knowledge/</code>.</li>
-        <li><strong>Prompt Trigger Engine:</strong> Evaluates diagnostic error flags and dispatches AI prompts autonomously.</li>
+        <li><strong>Background Diagnostic Triggers:</strong> When <code>health_check.py</code> or <code>sec_audit.py</code> detects failure flags (e.g. broken routes, SSL cert expiry), <code>agent_autonomous_runner.py</code> flags the corresponding agent (<code>web-seo-rank-agent</code>, <code>web-security-error-agent</code>, <code>web-health-crm-agent</code>).</li>
+        <li><strong>Chat On-Demand Triggers:</strong> Type slash commands in chat: <code>/web-audit</code>, <code>/web-fix-ui</code>, <code>/web-seo-opt</code>, <code>/web-sec-harden</code>. The <code>head-web-orchestrator</code> routes to the specialist agent.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>☁️ 24/7 Cloud Sentinel (Laptop Closed)</h3>
+      <p>Web-Ops OS runs 24/7 on GitHub Actions cloud infrastructure:</p>
+      <ul>
+        <li><strong>GitHub Repo:</strong> <a href="https://github.com/yash1900/web-ops-os" target="_blank" style="color: #38bdf8;"><code>github.com/yash1900/web-ops-os</code></a></li>
+        <li><strong>3-Hour Cloud Cron:</strong> <code>cloud_runner.py</code> pings websites, runs SEO & security scans, and evaluates autonomous agent triggers 24/7.</li>
+        <li><strong>Instant Dark-Mode Email Alerts:</strong> Sends alerts directly to <code>yashmalhotra.space@gmail.com</code> if any site or SSL cert fails while your laptop is closed.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>💰 API Cost Governance ($0.00 Default)</h3>
+      <p>Built-in protection against API bill runaway:</p>
+      <ul>
+        <li><strong>Deterministic-First:</strong> 95% of routine pings & auto-fixes use Python scripts ($0 API cost).</li>
+        <li><strong>Model Tiering:</strong> SEO & Health agents use <code>flash_lite</code> (fraction of a cent). UI/UX & Security use <code>flash</code>.</li>
+        <li><strong>Gemini Free Tier:</strong> 1,500 free RPD allowance ensures 24/7 runs stay 100% free ($0.00/mo).</li>
       </ul>
     </div>
 
     <div class="card">
       <h3>⚡ Quick Start Commands</h3>
-      <p>Run these in PowerShell inside <code>Automations/</code>:</p>
+      <p>Run locally inside <code>Automations/</code>:</p>
       <div class="cmd-box">python web-ops-os/scripts/health_check.py</div>
       <div class="cmd-box">python web-ops-os/scripts/auto_fixer.py</div>
-      <div class="cmd-box">python web-ops-os/scripts/visual_audit.py</div>
-      <div class="cmd-box">python web-ops-os/scripts/agent_autonomous_runner.py</div>
+      <div class="cmd-box">python web-ops-os/scripts/cloud_runner.py</div>
       <div class="cmd-box">python web-ops-os/scripts/verify_os.py</div>
     </div>
   </section>
@@ -251,13 +277,10 @@ def generate_website_manager_html():
   </table>
 
   <div class="feature-box">
-    <h4>💡 Phase 2 Autonomous Engine Capabilities</h4>
-    <ul>
-      <li><strong>3-Hour Scheduled Loop:</strong> Runs <code>health_check.py</code>, <code>auto_fixer.py</code>, and <code>agent_autonomous_runner.py</code> automatically inside <code>push_tasks.ps1</code>.</li>
-      <li><strong>Auto-Healing Remediation:</strong> Auto-patches missing image ALT attributes, default meta descriptions, and <code>vercel.json</code> CSP headers.</li>
-      <li><strong>Visual Layout Auditing:</strong> Audits mobile (375px), tablet (768px), and desktop (1440px) viewports and exports <code>visual_audit_report.json</code>.</li>
-      <li><strong>Department Knowledge & Rollbacks:</strong> Specialized agents read <code>agents/knowledge/</code> and use safe <code>rollback_command</code> parameters if builds fail.</li>
-    </ul>
+    <h4>📍 Real-Time Dashboard Map Integration</h4>
+    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+      Every background execution automatically updates <code>Dashboard/health-check-log.json</code>. Opening <strong><code>Dashboard/dashboard.html</code></strong> displays live status badges, exact latency (e.g. <code>HTTP 200 OK (237ms)</code>), and clear plain-language diagnostic descriptions on your interactive OS map.
+    </p>
   </div>
 
 </body>
