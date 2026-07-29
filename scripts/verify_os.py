@@ -120,8 +120,10 @@ def main():
         "scripts/update_website_manager.py",
         "scripts/git_guardrail.py",
         "scripts/cloud_runner.py",
+        "scripts/backend_deep_probe.py",
         ".github/workflows/web_ops_cloud_cron.yml"
     ]
+
     for script_path in scripts:
         if assert_file(script_path, f"Script/Workflow ({os.path.basename(script_path)})"): passed += 1
         else: failed += 1

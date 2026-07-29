@@ -175,6 +175,15 @@ def main():
     
     # Sync with Dashboard Map health log
     update_dashboard_health_log(results)
+    
+    # Execute Backend, Database, AI Pipeline & Webhook Deep Probes
+    try:
+        sys.path.insert(0, os.path.dirname(__file__))
+        import backend_deep_probe
+        backend_deep_probe.run_deep_probes()
+    except Exception as e:
+        print(f"[WARN] Deep probes execution error: {e}")
 
 if __name__ == "__main__":
     main()
+

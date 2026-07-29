@@ -24,8 +24,10 @@ import seo_scanner
 import sec_audit
 import auto_fixer
 import agent_autonomous_runner
+import backend_deep_probe
 
 def send_alert_email(failed_sites, total_sites):
+
     smtp_user = os.environ.get("GMAIL_USER") or os.environ.get("SMTP_USER")
     smtp_pass = os.environ.get("GMAIL_APP_PASSWORD") or os.environ.get("SMTP_PASS")
     email_to = os.environ.get("ALERT_EMAIL_TO") or os.environ.get("EMAIL_TO") or "malhotrayash1900@gmail.com"
@@ -120,6 +122,17 @@ def main():
             failed_sites.append(res)
             
     print(f"\n[CLOUD PING RESULT] Total: {len(results)} | Healthy: {len(results)-len(failed_sites)} | Issues: {len(failed_sites)}")
+    
+    # 2. Run Backend, Database, AI Pipeline & Webhook Deep Probes
+    print("\n--- Running Backend & Infrastructure Deep Probes ---")
+    try:
+        probe_results = backend_deep_probe.run_deep_probes()
+        for pr in probe_results:
+            if pr["status"] != "HEALTHY":
+                failed_sites.append({"site_id": pr["id"], "name": pr["name"], "url": pr["url"], "error": pr["error"]})
+    except Exception as e:
+        print(f"[WARN] Deep probes error: {e}")
+
     
     # 2. Run static SEO audit
     print("\n--- Running SEO Audit ---")

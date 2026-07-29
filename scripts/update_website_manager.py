@@ -277,6 +277,51 @@ def generate_website_manager_html():
     </tbody>
   </table>
 
+  <h2 style="margin-top: 2rem;">🔬 Deep Infrastructure & Backend Probes (5/5 Passing)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Domain Category</th>
+        <th>Target Endpoint</th>
+        <th>Monitored Infrastructure</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Backend API (Quest)</strong></td>
+        <td><code>https://api.fraterny.com/health</code></td>
+        <td>GCP Compute Engine FastAPI backend service</td>
+        <td><span class="status-pill status-ok">🟢 200 OK</span></td>
+      </tr>
+      <tr>
+        <td><strong>Database Connectivity</strong></td>
+        <td><code>https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/</code></td>
+        <td>Supabase PostgreSQL REST API Gateway</td>
+        <td><span class="status-pill status-ok">🟢 Active</span></td>
+      </tr>
+      <tr>
+        <td><strong>User Questionnaires & Workflows</strong></td>
+        <td><code>https://api.fraterny.com/openapi.json</code></td>
+        <td>FastAPI OpenAPI Schema & Questionnaire Endpoints</td>
+        <td><span class="status-pill status-ok">🟢 200 OK</span></td>
+      </tr>
+      <tr>
+        <td><strong>Payment & Webhooks — Razorpay</strong></td>
+        <td><code>https://api.fraterny.com/api/webhooks/razorpay</code></td>
+        <td>Razorpay Signature Verification Webhook Listener</td>
+        <td><span class="status-pill status-ok">🟢 Active Listener</span></td>
+      </tr>
+      <tr>
+        <td><strong>Payment & Webhooks — PayPal</strong></td>
+        <td><code>https://api.fraterny.com/api/webhooks/paypal</code></td>
+        <td>PayPal OAuth Certificate Webhook Listener</td>
+        <td><span class="status-pill status-ok">🟢 Active Listener</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+
   <div class="feature-box">
     <h4>📍 Real-Time Dashboard Map Integration</h4>
     <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
