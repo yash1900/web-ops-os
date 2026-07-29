@@ -33,7 +33,7 @@ All sites are tracked in `registry/websites.json` and detailed in `registry/<sit
 | `personal-website` | Yash Malhotra Personal Site | `personal-website/` | Vite + React 18 + TS + Tailwind v3 + Three.js (Vercel) | `yashmalhotra.space` | [personal-website.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/personal-website.md) |
 | `isaan-tea` | Isaan Tea Website | `Isaan_Tea_V1/` | React 19 + Vite 6 + Tailwind v4 (Vercel Serverless) | `isaantea.com` | [isaan-tea.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/isaan-tea.md) |
 | `fraterny` | Fraterny Platform | `fraterny-automation/Fraterny_Nextjs` & `Quest` | Next.js 14 + Node/Quest API + Supabase (Vercel / GCP) | `fraterny.com` | [fraterny.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/fraterny.md) |
-| `iconic-homes` | Iconic Homes Tulsi Tower | `Iconic-homes-Tulsi-tower/` | Static HTML5 / CSS3 / JS (Hostinger / Static) | `iconichomes.in` | [iconic-homes.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/iconic-homes.md) |
+| `iconic-homes` | Iconic Homes Tulsi Tower | `Iconic-homes-Tulsi-tower/` | Static HTML5 / CSS3 / JS (Hostinger / Static) | `iconichomesinfracon.in` | [iconic-homes.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/iconic-homes.md) |
 
 ---
 
@@ -43,6 +43,7 @@ Run commands using PowerShell in `web-ops-os/` (use `;` to chain, never `&&`):
 
 | Task / Domain | Command / Skill | Purpose |
 |---------------|-----------------|---------|
+| **24/7 Cloud Sentinel Engine** | `python scripts/cloud_runner.py` | Runs health, SEO, security, auto-fixers, AI triggers & emails alerts on failure. |
 | **Uptime & Health Ping** | `python scripts/health_check.py` | Fast zero-cost HTTP status ping across all site endpoints. |
 | **SEO Static Audit** | `python scripts/seo_scanner.py` | Audits missing title, meta tags, alt tags, schema, and sitemap. |
 | **Security Audit** | `python scripts/sec_audit.py` | Audits HTTP headers, CSP, CORS, and `.env` security. |
@@ -50,11 +51,13 @@ Run commands using PowerShell in `web-ops-os/` (use `;` to chain, never `&&`):
 | **Visual Layout Audit** | `python scripts/visual_audit.py` | Audits responsive viewports (375px, 768px, 1440px) & checks overflow. |
 | **Autonomous AI Trigger Engine** | `python scripts/agent_autonomous_runner.py` | Evaluates diagnostic flags & dispatches departmental AI agent prompts. |
 | **Sync Registry** | `python scripts/sync_registry.py` | Resyncs website statuses with `Dashboard/memory/automations.md`. |
+| **System Verification** | `python scripts/verify_os.py` | Runs 44-point verification suite testing specs, agents, skills & scripts. |
 | **Full Site Audit** | `/web-audit [site_id]` | Invokes multi-dimensional audit skill across UI, SEO, Sec, Health. |
 | **Fix UI / Overflows** | `/web-fix-ui [site_id]` | Triggers UI/UX agent to diagnose and resolve layout bugs & overlaps. |
 | **Optimize SEO** | `/web-seo-opt [site_id]` | Injects optimized metadata, JSON-LD schema, and updates sitemap. |
 | **Harden Security** | `/web-sec-harden [site_id]` | Applies CSP rules, security headers, and fallback handlers. |
 | **Onboard New Site** | `/web-onboard-site <name>` | Onboards a new website into `websites.json`, routing, and scripts. |
+
 
 ---
 
