@@ -76,7 +76,9 @@ def check_website(site):
 
 def update_dashboard_health_log(results):
     now_iso = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    today_str = datetime.date.today().strftime("%Y-%m-%d")
     health_log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "Dashboard"))
+
     if not os.path.exists(health_log_dir):
         health_log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     health_log_path = os.path.join(health_log_dir, "health-check-log.json")
