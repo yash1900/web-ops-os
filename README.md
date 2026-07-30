@@ -24,7 +24,8 @@ web-ops-os/
 │   ├── web-ui-ux-agent.md         # Design, animations & overflow agent
 │   ├── web-seo-rank-agent.md      # SEO, schema & page rank agent
 │   ├── web-security-error-agent.md# CSP, security & fallbacks agent
-│   └── web-health-crm-agent.md    # Latency, health & CRM webhook agent
+│   ├── web-health-crm-agent.md    # Latency, health & CRM webhook agent
+│   └── web-verify-ship-agent.md   # Independent verify → commit → gated-deploy exit gate
 ├── skills/                  # Operational website management skill files
 │   ├── web-audit.md         # Multi-dimensional site audit skill
 │   ├── web-fix-ui.md        # UI overflow & visual fix skill

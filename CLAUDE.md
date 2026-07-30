@@ -20,7 +20,13 @@ This directory is the **isolated Web-Ops OS** inside Yash's Automations OS. Its 
 3. **`/advise` Decision Principles**:
    - Every modification is evaluated against Risk vs. Impact.
    - Always preserve backwards compatibility and existing API contracts.
-   - Always verify build (`npm run build`, `python scripts/...`) before declaring complete.
+
+4. **Definition of "Complete" — the Verify-Ship Gate** *(added 2026-07-31)*:
+   - **"Complete" = verified → committed → deployed → confirmed-live.** A passing build is step one of four, NOT completion. Files edited in the working tree are **not** "remediated" or "shipped" — they are unshipped drafts until committed, pushed, and confirmed live.
+   - The component that **makes** a change may never **certify** it. Every changeset is routed through the independent [`web-verify-ship-agent`](agents/web-verify-ship-agent.md), which reality-checks the diff, rejects fabricated findings, isolates the intended edit from unrelated/sensitive working-tree changes, runs the build, commits, deploys, and confirms live.
+   - **Autonomy = full-auto by default** (Yash's standing directive, 2026-07-31): when the gate is fully green it commits **and deploys** with no human step. It stops and pings Yash **only on a real problem** — build failure, fabrication, secret/PII in a public bundle, a site-breaking CSP, or unverifiable legal content. Partial ship (ship the clean wins, hold the problem file) is preferred over blocking everything.
+   - **Never report "green" from disk state.** Report only the gate's verdict (`SHIPPED` / `ESCALATED` / `REJECTED`).
+   - *Origin:* on 2026-07-30 an audit reported 4 sites "hardened/remediated (green)" while **nothing was committed**, cited a script that never existed, and nearly shipped a CSP that would have broken Google Fonts. This gate exists so that can't recur.
 
 ---
 
