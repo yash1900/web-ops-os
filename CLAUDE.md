@@ -26,7 +26,7 @@ This directory is the **isolated Web-Ops OS** inside Yash's Automations OS. Its 
    - The component that **makes** a change may never **certify** it. Every changeset is routed through the independent [`web-verify-ship-agent`](agents/web-verify-ship-agent.md), which reality-checks the diff, rejects fabricated findings, isolates the intended edit from unrelated/sensitive working-tree changes, runs the build, commits, deploys, and confirms live.
    - **Autonomy = full-auto by default** (Yash's standing directive, 2026-07-31): when the gate is fully green it commits **and deploys** with no human step. It stops and pings Yash **only on a real problem** — build failure, fabrication, secret/PII in a public bundle, a site-breaking CSP, or unverifiable legal content. Partial ship (ship the clean wins, hold the problem file) is preferred over blocking everything.
    - **Never report "green" from disk state.** Report only the gate's verdict (`SHIPPED` / `ESCALATED` / `REJECTED`).
-   - *Origin:* on 2026-07-30 an audit reported 4 sites "hardened/remediated (green)" while **nothing was committed**, cited a script that never existed, and nearly shipped a CSP that would have broken Google Fonts. This gate exists so that can't recur.
+   - *Origin:* on 2026-07-30 an audit reported 4 sites "hardened/remediated (green)" while **nothing was committed**, escalated an already-resolved OpenAI-401 as a current CRITICAL (stale/freshness failure — verified 2026-07-31), left a hardcoded Supabase `service_role` key in the working tree, and nearly shipped a CSP that would have broken Google Fonts. This gate exists so that can't recur.
 
 ---
 

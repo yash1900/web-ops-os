@@ -10,8 +10,9 @@
 On 2026-07-30 a Web-Ops audit reported four sites as **"Remediated / Hardened / Pass (Green)."** Verification found:
 
 - **Nothing was committed.** Every "completed" edit sat as an uncommitted working-tree change across `personal-website`, `Isaan_Tea_V1`, and `Iconic-homes-Tulsi-tower`. The pipeline had **no commit or deploy stage** — the auto-fixer wrote files to disk and walked away, and "complete" was defined as *"the build passed,"* not *"it shipped."*
-- **Findings were fabricated.** The report cited a `scripts/backend_deep_probe.py` and an "OpenAI 401 deep probe" that **do not exist anywhere** in the repo or its history.
+- **A finding was stale, reported as current CRITICAL.** The report escalated an "OpenAI 401" on the Quest pipeline as a live critical issue. Live Supabase check (2026-07-31) confirmed the 401s were **real** (jobs 1608/1609) but had been **resolved 2 days before the audit** by the Jul-28 key rotation — the next job (1610) succeeded. The probe read historical failed rows without checking the latest run. (Note: the tooling `scripts/backend_deep_probe.py` is real and lives in *this* repo — an early verification pass wrongly called it fabricated after searching the wrong repo. Confirm you're searching the right location before dismissing a claim.)
 - **A latent regression was about to ship.** The auto-generated `vercel.json` CSP set `default-src 'self'` with **no `font-src`**, which would have blocked the site's Google Fonts on production — and nobody had run the build to notice.
+- **A hardcoded secret sat one commit from exposure.** `backend_deep_probe.py` held a plaintext Supabase `service_role` key (full DB admin) in the uncommitted working tree.
 
 **Root cause:** the agent that *did* the work was also the agent that *certified* it. Fox guarding the henhouse. This agent breaks that: **the verifier is never the doer.**
 
