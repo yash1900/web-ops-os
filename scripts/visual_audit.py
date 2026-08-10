@@ -41,8 +41,11 @@ def audit_html_viewport_overflow(file_path):
 
     issues = []
 
-    # Check for fixed pixel widths > 375px in inline styles or static CSS
-    fixed_widths = re.findall(r'width\s*:\s*(\d+)px', content, re.IGNORECASE)
+    # Check for fixed pixel widths > 375px in inline styles or static CSS.
+    # Negative lookbehind (?<![-\w]) excludes max-width/min-width (and any *width
+    # compound) — those are fluid and scale down on mobile, so matching them was a
+    # false-positive that flagged responsive layouts as overflow risks.
+    fixed_widths = re.findall(r'(?<![-\w])width\s*:\s*(\d+)px', content, re.IGNORECASE)
     for w in fixed_widths:
         if int(w) > 375:
             issues.append(f"Fixed width styling ({w}px) exceeds mobile viewport (375px)")
