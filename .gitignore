@@ -1,6 +1,7 @@
 # Environment secrets & local config
 .env
 .env.local
+set-local-env.ps1
 *.key
 *.pem
 
