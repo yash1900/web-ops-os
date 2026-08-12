@@ -128,19 +128,17 @@ def probe_db_telemetry():
     Inspects recent jobs for failures ('Failed', 'Failed in agent else') and stuck states.
     """
     url = "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/summary_generation?select=id,testid,status,summary_error,agent_start_time,agent_completion_time&order=id.desc&limit=10"
-    # Supabase service_role key = full DB admin (bypasses RLS). Load from env, NEVER hardcode.
-    api_key = os.environ.get("FRATERNY_SUPABASE_SERVICE_KEY", "")
-    if not api_key:
-        return {
-            "id": "quest_db_pipeline_telemetry",
-            "name": "Quest AI Pipeline Telemetry (Supabase DB)",
-            "category": "AI Generation Pipeline",
-            "status": "SKIPPED",
-            "url": url,
-            "code": 0,
-            "latency_ms": 0,
-            "error": "FRATERNY_SUPABASE_SERVICE_KEY not set — DB telemetry probe skipped (set the env var to enable)."
-        }
+    # summary_generation has RLS disabled + a public SELECT policy, so the PUBLIC anon
+    # key (already shipped in the Fraterny web frontend — safe to embed, NOT a secret)
+    # can read it. This probe only ever does a read, so anon is sufficient and needs
+    # zero config. If a service_role key is provided via env we prefer it, otherwise we
+    # fall back to anon so the probe always runs instead of skipping.
+    SUPABASE_ANON_KEY = (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+        "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtYXlsZW1pZ3RuemlyYnRpdWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMDAyMTAsImV4cCI6MjA1Nzg3NjIxMH0."
+        "NrElgPeL_HOZnY3Ou5b5-I1X6ANI8SJh8Zcd_XmP5Xk"
+    )
+    api_key = os.environ.get("FRATERNY_SUPABASE_SERVICE_KEY", "").strip() or SUPABASE_ANON_KEY
     start_time = time.time()
     
     try:
