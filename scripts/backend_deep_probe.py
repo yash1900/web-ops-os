@@ -156,54 +156,58 @@ def probe_db_telemetry():
             body = response.read().decode('utf-8', errors='ignore')
             rows = json.loads(body)
             
-            failed_jobs = []
-            stuck_jobs = []
-            
-            for row in rows:
-                st = str(row.get("status") or "")
-                err = row.get("summary_error")
-                tid = row.get("testid")
-                row_id = row.get("id")
-                
-                # Check for explicit failure status or recorded error
-                if "failed" in st.lower() or err:
-                    failed_jobs.append(f"ID {row_id} (testId: {tid[:12]}...): {err or st}")
-                elif st in ["Agent Started", "Data Recieved & Extracted", "Passing to Json"] and not row.get("agent_completion_time"):
-                    stuck_jobs.append(f"ID {row_id} (testId: {tid[:12]}...) stuck in '{st}'")
-                    
-            if failed_jobs:
-                return {
-                    "id": "quest_db_pipeline_telemetry",
-                    "name": "Quest AI Pipeline Telemetry (Supabase DB)",
-                    "category": "AI Generation Pipeline",
-                    "url": "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/summary_generation",
-                    "status": "UNHEALTHY",
-                    "code": 200,
-                    "latency_ms": latency,
-                    "error": f"{len(failed_jobs)} pipeline failure(s) detected: " + " | ".join(failed_jobs[:2])
-                }
-            elif stuck_jobs:
-                return {
-                    "id": "quest_db_pipeline_telemetry",
-                    "name": "Quest AI Pipeline Telemetry (Supabase DB)",
-                    "category": "AI Generation Pipeline",
-                    "url": "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/summary_generation",
-                    "status": "DEGRADED",
-                    "code": 200,
-                    "latency_ms": latency,
-                    "error": f"{len(stuck_jobs)} stuck job(s) detected: " + " | ".join(stuck_jobs[:2])
-                }
-            else:
-                return {
-                    "id": "quest_db_pipeline_telemetry",
-                    "name": "Quest AI Pipeline Telemetry (Supabase DB)",
-                    "category": "AI Generation Pipeline",
-                    "url": "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/summary_generation",
-                    "status": "HEALTHY",
-                    "code": 200,
-                    "latency_ms": latency,
-                    "error": None
-                }
+            # Quest runs on demand (however often users trigger it), so volume is
+            # irregular. The signal that matters is simply: DID THE LAST RUN SUCCEED?
+            # Rows come ordered id desc, so rows[0] is the most recent job.
+            base = {
+                "id": "quest_db_pipeline_telemetry",
+                "name": "Quest AI Pipeline Telemetry (Supabase DB)",
+                "category": "AI Generation Pipeline",
+                "url": "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/summary_generation",
+                "code": 200,
+                "latency_ms": latency,
+            }
+
+            if not rows:
+                return {**base, "status": "DEGRADED",
+                        "error": "No summary_generation rows returned — cannot confirm the last run."}
+
+            latest = rows[0]
+            st = str(latest.get("status") or "")
+            err = latest.get("summary_error")
+            tid = str(latest.get("testid") or "")[:12]
+            row_id = latest.get("id")
+            started = str(latest.get("agent_start_time") or "")
+            completed = latest.get("agent_completion_time")
+            when = started[:16] if started else "unknown time"
+
+            # 1. Last run explicitly failed, or recorded an error without ever completing
+            if "fail" in st.lower() or (err and not completed):
+                return {**base, "status": "UNHEALTHY",
+                        "error": f"LAST run FAILED — job #{row_id} (testId {tid}…, {when}), "
+                                 f"status '{st}': {str(err or 'no error text')[:170]}"}
+
+            # 2. Last run still mid-flight: fresh = normal (a user is running it now);
+            #    old with no completion = genuinely stuck.
+            mid_flight = not completed and "complete" not in st.lower()
+            if mid_flight:
+                stale = False
+                try:
+                    ts = started.replace(" ", "T")
+                    if ts.endswith("+00"):
+                        ts = ts[:-3] + "+00:00"
+                    age_min = (datetime.now(timezone.utc) - datetime.fromisoformat(ts)).total_seconds() / 60
+                    stale = age_min > 30
+                except Exception:
+                    stale = False
+                if stale:
+                    return {**base, "status": "DEGRADED",
+                            "error": f"LAST run STUCK — job #{row_id} (testId {tid}…) still in "
+                                     f"'{st}' since {when}, no completion after >30 min."}
+                return {**base, "status": "HEALTHY", "error": None}
+
+            # 3. Last run completed cleanly
+            return {**base, "status": "HEALTHY", "error": None}
     except Exception as e:
         latency = int((time.time() - start_time) * 1000)
         return {
