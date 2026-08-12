@@ -128,7 +128,7 @@ def main():
     try:
         probe_results = backend_deep_probe.run_deep_probes()
         for pr in probe_results:
-            if pr["status"] != "HEALTHY":
+            if pr["status"] not in ("HEALTHY", "SKIPPED"):
                 failed_sites.append({"site_id": pr["id"], "name": pr["name"], "url": pr["url"], "error": pr["error"]})
     except Exception as e:
         print(f"[WARN] Deep probes error: {e}")

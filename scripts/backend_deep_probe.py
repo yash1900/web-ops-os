@@ -134,6 +134,7 @@ def probe_db_telemetry():
         return {
             "id": "quest_db_pipeline_telemetry",
             "name": "Quest AI Pipeline Telemetry (Supabase DB)",
+            "category": "AI Generation Pipeline",
             "status": "SKIPPED",
             "url": url,
             "code": 0,
@@ -284,7 +285,7 @@ def run_deep_probes():
         res = probe_endpoint(probe)
         results.append(res)
         
-        status_tag = "🟢 [PASS]" if res["status"] == "HEALTHY" else ("🟡 [WARN]" if res["status"] == "DEGRADED" else "🔴 [FAIL]")
+        status_tag = "🟢 [PASS]" if res["status"] == "HEALTHY" else ("🟡 [WARN]" if res["status"] == "DEGRADED" else ("⚪ [SKIP]" if res["status"] == "SKIPPED" else "🔴 [FAIL]"))
         print(f"\n {status_tag} [{res['category']}] {res['name']}")
         print(f"   URL: {res['url']} | Code: {res['code']} | Latency: {res['latency_ms']}ms")
         if res["error"]:
@@ -293,7 +294,7 @@ def run_deep_probes():
     # Run Database Telemetry Probe
     db_res = probe_db_telemetry()
     results.append(db_res)
-    status_tag = "🟢 [PASS]" if db_res["status"] == "HEALTHY" else ("🟡 [WARN]" if db_res["status"] == "DEGRADED" else "🔴 [FAIL]")
+    status_tag = "🟢 [PASS]" if db_res["status"] == "HEALTHY" else ("🟡 [WARN]" if db_res["status"] == "DEGRADED" else ("⚪ [SKIP]" if db_res["status"] == "SKIPPED" else "🔴 [FAIL]"))
     print(f"\n {status_tag} [{db_res['category']}] {db_res['name']}")
     print(f"   URL: {db_res['url']} | Code: {db_res['code']} | Latency: {db_res['latency_ms']}ms")
     if db_res["error"]:
