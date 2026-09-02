@@ -32,11 +32,7 @@
   {
     "site_id": "iconic-homes",
     "url": "https://iconichomesinfracon.in",
-    "issues": [
-      "Fixed width styling (400px) exceeds mobile viewport (375px)",
-      "Fixed width styling (700px) exceeds mobile viewport (375px)",
-      "Fixed width styling (700px) exceeds mobile viewport (375px)"
-    ],
+    "issues": [],
     "viewports_verified": [
       "mobile (375x812)",
       "tablet (768x1024)",

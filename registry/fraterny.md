@@ -9,7 +9,7 @@
 ---
 
 ## 1. Stack & Technical Architecture
-- **Frontend**: Next.js 14 App Router, TypeScript, Tailwind CSS, Vercel host.
+- **Frontend**: Next.js 16 App Router, TypeScript, Tailwind CSS, Vercel host.
 - **Backend**: Quest API Node.js backend on GCP, PayPal & Stripe payment webhooks.
 - **Database**: Supabase PostgreSQL (`pmaylemigtnzirbtiueg`).
 - **Automation Pipeline**: Zero-maintenance webhook verifiers & error fallback handlers (`BUG3_PAYMENT_WEBHOOK_PLAN.md`).

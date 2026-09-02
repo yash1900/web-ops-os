@@ -37,7 +37,7 @@
       "local_path": "fraterny-automation/Fraterny_Nextjs",
       "production_url": "https://fraterny.com",
       "canonical_domain": "fraterny.com",
-      "tech_stack": ["Next.js 14", "TypeScript", "Node.js", "Supabase", "GCP VM", "PayPal Webhooks"],
+      "tech_stack": ["Next.js 16", "TypeScript", "Node.js", "Supabase", "GCP VM", "PayPal Webhooks"],
       "hosting": "Vercel + GCP",
       "vercel_project": "fraterny-nextjs",
       "github_repo": "github.com/yash1900/fraterny",

@@ -38,7 +38,7 @@ All sites are tracked in `registry/websites.json` and detailed in `registry/<sit
 |---------|------|--------------|-----------------|-----------------|----------|
 | `personal-website` | Yash Malhotra Personal Site | `personal-website/` | Vite + React 18 + TS + Tailwind v3 + Three.js (Vercel) | `yashmalhotra.space` | [personal-website.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/personal-website.md) |
 | `isaan-tea` | Isaan Tea Website | `Isaan_Tea_V1/` | React 19 + Vite 6 + Tailwind v4 (Vercel Serverless) | `isaantea.com` | [isaan-tea.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/isaan-tea.md) |
-| `fraterny` | Fraterny Platform | `fraterny-automation/Fraterny_Nextjs` & `Quest` | Next.js 14 + Node/Quest API + Supabase (Vercel / GCP) | `fraterny.com` | [fraterny.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/fraterny.md) |
+| `fraterny` | Fraterny Platform | `fraterny-automation/Fraterny_Nextjs` & `Quest` | Next.js 16 + Node/Quest API + Supabase (Vercel / GCP) | `fraterny.com` | [fraterny.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/fraterny.md) |
 | `iconic-homes` | Iconic Homes Tulsi Tower | `Iconic-homes-Tulsi-tower/` | Static HTML5 / CSS3 / JS (Hostinger / Static) | `iconichomesinfracon.in` | [iconic-homes.md](file:///c:/Users/amar1/Downloads/Automations/web-ops-os/registry/iconic-homes.md) |
 
 ---
