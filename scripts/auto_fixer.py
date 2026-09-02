@@ -125,7 +125,7 @@ def update_health_log(websites):
     existing_log = {}
     if os.path.exists(log_path):
         try:
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, "r", encoding="utf-8-sig") as f:
                 existing_log = json.load(f)
         except Exception:
             existing_log = {}

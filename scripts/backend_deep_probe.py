@@ -227,7 +227,11 @@ def sync_alerts_and_logs(results):
     and Dashboard/health-check-log.json (for live dashboard status map).
     """
     now_iso = datetime.now(timezone.utc).isoformat()
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # lastRun is a bare calendar date read by the Dashboard Map, so it must be
+    # LOCAL: this probe runs last in push_tasks.ps1, and a UTC date stamped
+    # during the 00:00-05:30 IST window overwrote health_check.py's correct
+    # local date with yesterday's -- making every nightly run look stale.
+    today_str = datetime.now().strftime("%Y-%m-%d")
     
     # 1. Build alerts list for daily-brief/alerts.json
     alerts = []
@@ -256,7 +260,7 @@ def sync_alerts_and_logs(results):
     health_log_path = os.path.join(r"c:\Users\amar1\Downloads\Automations", "Dashboard", "health-check-log.json")
     try:
         if os.path.exists(health_log_path):
-            with open(health_log_path, "r", encoding="utf-8") as f:
+            with open(health_log_path, "r", encoding="utf-8-sig") as f:
                 health_data = json.load(f)
         else:
             health_data = {"lastRun": today_str, "source": "web-ops-os backend_deep_probe.py", "automations": {}}

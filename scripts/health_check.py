@@ -86,7 +86,7 @@ def update_dashboard_health_log(results):
     health_data = {}
     if os.path.exists(health_log_path):
         try:
-            with open(health_log_path, "r", encoding="utf-8") as f:
+            with open(health_log_path, "r", encoding="utf-8-sig") as f:
                 health_data = json.load(f)
         except Exception:
             pass

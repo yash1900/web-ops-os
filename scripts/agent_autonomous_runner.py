@@ -29,7 +29,7 @@ def inspect_diagnostic_flags():
     log_path = os.path.join(ROOT_DIR, "Dashboard", "health-check-log.json")
     if os.path.exists(log_path):
         try:
-            with open(log_path, "r", encoding="utf-8") as f:
+            with open(log_path, "r", encoding="utf-8-sig") as f:
                 log_data = json.load(f)
                 auto_data = log_data.get("automations", {}).get("web-ops-os", {})
                 if auto_data.get("result") != "healthy":
