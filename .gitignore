@@ -9,3 +9,7 @@ set-local-env.ps1
 __pycache__/
 *.pyc
 *.log
+
+# Sub-tools & local agent skills
+tools/
+.claude/

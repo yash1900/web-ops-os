@@ -60,6 +60,7 @@ Run commands using PowerShell in `web-ops-os/` (use `;` to chain, never `&&`):
 | **System Verification** | `python scripts/verify_os.py` | Runs 44-point verification suite testing specs, agents, skills & scripts. |
 | **Full Site Audit** | `/web-audit [site_id]` | Invokes multi-dimensional audit skill across UI, SEO, Sec, Health. |
 | **Fix UI / Overflows** | `/web-fix-ui [site_id]` | Triggers UI/UX agent to diagnose and resolve layout bugs & overlaps. |
+| **Scroll-Driven Landing Pages** | `/scroll-craft` | Builds premium, scroll-driven interactive landing pages with automated self-verification (`tools/scroll-craft`). |
 | **Optimize SEO** | `/web-seo-opt [site_id]` | Injects optimized metadata, JSON-LD schema, and updates sitemap. |
 | **Harden Security** | `/web-sec-harden [site_id]` | Applies CSP rules, security headers, and fallback handlers. |
 | **Onboard New Site** | `/web-onboard-site <name>` | Onboards a new website into `websites.json`, routing, and scripts. |

@@ -14,6 +14,7 @@
 2. **Animation & Interaction Optimization**:
    - Fixes janky CSS transitions, GSAP scroll triggers, and Three.js WebGL render loop optimizations (ensures rAF loops pause when off-screen).
    - Preserves core constraints (e.g. `Mind.tsx` rAF scroll reveal system in `personal-website`).
+   - Leverages **`scroll-craft`** (`web-ops-os/tools/scroll-craft` / `/scroll-craft`) for scroll-driven interactive landing pages, scrubbed video timelines, pinned stages, feeling curves, and automated headless verification.
 
 3. **Verification Command**:
    - `npm run build` or `npm run preview` in the target site directory.
