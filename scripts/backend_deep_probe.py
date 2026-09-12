@@ -6,6 +6,15 @@ Performs multi-dimensional verification across:
 3. User Questionnaires & Workflows API: OpenAPI schema validation (https://api.fraterny.com/openapi.json)
 4. Payment & Webhooks Listener Routes: https://api.fraterny.com/api/webhooks/razorpay & paypal
 5. AI Generation Pipeline & Model Readiness: Quest API RAG & Model Endpoint Health
+6. Checkout Pricing & Discount Integrity: dynamic_pricing vs the storefront, and
+   discount codes still active past expiry
+
+NOTE on what probes 1-5 can and cannot tell you: they assert that URLs respond
+with an acceptable status code. The two "Payment & Webhooks" probes pass on a
+405, i.e. they only prove the route exists. Nothing here calls
+/api/payments/create-order, so no probe below #6 can see what a customer is
+actually charged — a pricing defect will sit green indefinitely. Probe #6 exists
+to close that specific blind spot; it still does not exercise order creation.
 """
 
 import json
@@ -221,6 +230,133 @@ def probe_db_telemetry():
             "error": f"Failed to query Supabase summary_generation table: {e}"
         }
 
+def probe_pricing_integrity():
+    """
+    Pricing & Discount Integrity audit for Quest checkout.
+
+    The HTTP probes above only prove the server answers. They cannot see what a
+    customer is actually charged, which is why a payment pricing defect can sit
+    green for months. This probe checks the money path itself:
+
+      1. An active `dynamic_pricing` row exists. Since 2026-09-12 the backend
+         REFUSES to create an order when it can't read one, so a missing or
+         deactivated row takes checkout down entirely.
+      2. The storefront (/api/admin/pricing/display) serves the same numbers as
+         that row. Drift means customers see a price the server won't honour.
+      3. Prices clear Razorpay's 100 minor-unit floor (Rs.1 / $1).
+      4. No discount code is active while past its expiry — the failure mode
+         where a campaign link keeps working but silently stops discounting.
+
+    Read-only, and the public anon key is enough (same rationale as the telemetry
+    probe), so this needs zero configuration.
+    """
+    SUPABASE_ANON_KEY = (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
+        "eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtYXlsZW1pZ3RuemlyYnRpdWVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzMDAyMTAsImV4cCI6MjA1Nzg3NjIxMH0."
+        "NrElgPeL_HOZnY3Ou5b5-I1X6ANI8SJh8Zcd_XmP5Xk"
+    )
+    api_key = os.environ.get("FRATERNY_SUPABASE_SERVICE_KEY", "").strip() or SUPABASE_ANON_KEY
+    rest = "https://pmaylemigtnzirbtiueg.supabase.co/rest/v1/"
+    storefront = "https://fraterny.com/api/admin/pricing/display"
+    base = {
+        "id": "quest_pricing_integrity",
+        "name": "Checkout Pricing & Discount Integrity",
+        "category": "Payment & Webhooks",
+        "url": storefront,
+        "code": 200,
+    }
+    start_time = time.time()
+
+    def _get(url, headers):
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8"))
+
+    sb_headers = {"apikey": api_key, "Authorization": f"Bearer {api_key}",
+                  "User-Agent": "WebOpsOS/1.0"}
+    try:
+        rows = _get(rest + "dynamic_pricing?is_active=eq.true&order=updated_at.desc&limit=1",
+                    sb_headers)
+        latency = int((time.time() - start_time) * 1000)
+        if not rows:
+            return {**base, "status": "UNHEALTHY", "code": 0, "latency_ms": latency,
+                    "error": "NO ACTIVE `dynamic_pricing` ROW — checkout is DOWN. The "
+                             "backend refuses to create any order when it cannot read a "
+                             "price. Re-activate a pricing row immediately."}
+        row = rows[0]
+
+        fields = [
+            ("razorpay_india_price_paise", ("razorpay", "india")),
+            ("razorpay_international_price_cents", ("razorpay", "international")),
+            ("paypal_india_price_cents", ("paypal", "india")),
+            ("paypal_international_price_cents", ("paypal", "international")),
+        ]
+
+        # 3. floor check
+        too_low = [c for c, _ in fields if int(row.get(c) or 0) < 100]
+        if too_low:
+            return {**base, "status": "UNHEALTHY", "code": 0, "latency_ms": latency,
+                    "error": f"Price below the 100 minor-unit gateway floor: "
+                             f"{', '.join(f'{c}={row.get(c)}' for c in too_low)}"}
+
+        # 2. storefront must agree with the source of truth
+        store = _get(storefront, {"User-Agent": "WebOpsOS/1.0"})
+        drift = []
+        if store.get("success") and store.get("data"):
+            for col, (gw, region) in fields:
+                served = store["data"].get(gw, {}).get(region, {}).get("price")
+                if served is not None and int(served) != int(row[col]):
+                    drift.append(f"{gw}.{region}: storefront {served} vs DB {row[col]}")
+        else:
+            drift.append("storefront returned no pricing data")
+        if drift:
+            return {**base, "status": "UNHEALTHY", "code": 0, "latency_ms": latency,
+                    "error": "Storefront price disagrees with dynamic_pricing — customers "
+                             "are quoted a price the server will not honour: " + "; ".join(drift)}
+
+        # 4. active-but-expired discount codes
+        codes = _get(rest + "discount_codes?select=code,discount_percentage,is_active,"
+                            "expires_at&is_active=eq.true", sb_headers)
+        now = datetime.now(timezone.utc)
+        expired = []
+        for c in codes or []:
+            exp = c.get("expires_at")
+            if not exp:
+                continue
+            try:
+                when = datetime.fromisoformat(str(exp).replace("Z", "+00:00"))
+                if when.tzinfo is None:
+                    when = when.replace(tzinfo=timezone.utc)
+                if when < now:
+                    expired.append(f"{c['code']} ({c.get('discount_percentage')}%, "
+                                   f"expired {when.date()})")
+            except Exception:
+                expired.append(f"{c['code']} (unparseable expires_at={exp!r})")
+
+        active_summary = ", ".join(
+            f"{c['code']}={c.get('discount_percentage')}%" for c in (codes or [])
+        ) or "none"
+        latency = int((time.time() - start_time) * 1000)
+
+        if expired:
+            return {**base, "status": "DEGRADED", "latency_ms": latency,
+                    "error": f"Discount code(s) still flagged active past expiry: "
+                             f"{'; '.join(expired)}. The code still validates but no longer "
+                             f"discounts, so a live campaign link quietly charges full price. "
+                             f"All active codes: {active_summary}"}
+
+        india = int(row["razorpay_india_price_paise"])
+        intl = int(row["razorpay_international_price_cents"])
+        return {**base, "status": "HEALTHY", "latency_ms": latency, "error": None,
+                "detail": f"India Rs.{india/100:.2f}, International ${intl/100:.2f}; "
+                          f"storefront matches DB; active codes: {active_summary}"}
+
+    except Exception as e:
+        return {**base, "status": "UNHEALTHY", "code": 0,
+                "latency_ms": int((time.time() - start_time) * 1000),
+                "error": f"Pricing integrity audit failed: {e}"}
+
+
 def sync_alerts_and_logs(results):
     """
     Syncs probe failures to daily-brief/alerts.json (for Morning Brief email alerts)
@@ -305,7 +441,18 @@ def run_deep_probes():
     print(f"   URL: {db_res['url']} | Code: {db_res['code']} | Latency: {db_res['latency_ms']}ms")
     if db_res["error"]:
         print(f"   Error: {db_res['error']}")
-            
+
+    # Run Checkout Pricing & Discount Integrity audit
+    price_res = probe_pricing_integrity()
+    results.append(price_res)
+    status_tag = "🟢 [PASS]" if price_res["status"] == "HEALTHY" else ("🟡 [WARN]" if price_res["status"] == "DEGRADED" else ("⚪ [SKIP]" if price_res["status"] == "SKIPPED" else "🔴 [FAIL]"))
+    print(f"\n {status_tag} [{price_res['category']}] {price_res['name']}")
+    print(f"   URL: {price_res['url']} | Code: {price_res['code']} | Latency: {price_res['latency_ms']}ms")
+    if price_res.get("detail"):
+        print(f"   {price_res['detail']}")
+    if price_res["error"]:
+        print(f"   Error: {price_res['error']}")
+
     print("\n" + "=" * 75)
     healthy_count = sum(1 for r in results if r["status"] == "HEALTHY")
     print(f" [SUMMARY] Deep Probes Passed: {healthy_count}/{len(results)}")
