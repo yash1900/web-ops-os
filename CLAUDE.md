@@ -51,6 +51,7 @@ Run commands using PowerShell in `web-ops-os/` (use `;` to chain, never `&&`):
 |---------------|-----------------|---------|
 | **24/7 Cloud Sentinel Engine** | `python scripts/cloud_runner.py` | Runs health, SEO, security, auto-fixers, AI triggers & emails alerts on failure. |
 | **Uptime & Health Ping** | `python scripts/health_check.py` | Fast zero-cost HTTP status ping across all site endpoints. |
+| **Backend / DB / Pipeline Deep Probe** | `python scripts/backend_deep_probe.py` | Quest backend, Supabase, OpenAPI, webhook routes, AI-pipeline telemetry, **and checkout pricing integrity**. ⚠️ Probes 1–5 only assert HTTP status codes — the two "Payment & Webhooks" probes **pass on a 405**, i.e. they prove a route exists, nothing more. Probe #6 (added 2026-09-12) is the only one that checks what a customer is actually charged: active `dynamic_pricing` row present, storefront matching it, prices above the gateway floor, no discount code live past its expiry. |
 | **SEO Static Audit** | `python scripts/seo_scanner.py` | Audits missing title, meta tags, alt tags, schema, and sitemap. |
 | **Security Audit** | `python scripts/sec_audit.py` | Audits HTTP headers, CSP, CORS, and `.env` security. |
 | **Auto-Fixer & Remediation** | `python scripts/auto_fixer.py` | Remediates missing ALT attributes, meta descriptions, CSP, and syncs log. |
