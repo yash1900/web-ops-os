@@ -247,8 +247,11 @@ def probe_pricing_integrity():
       4. No discount code is active while past its expiry — the failure mode
          where a campaign link keeps working but silently stops discounting.
 
-    Read-only, and the public anon key is enough (same rationale as the telemetry
-    probe), so this needs zero configuration.
+    Read-only and needs zero configuration. Since 2026-10-22 `discount_codes` is
+    closed to the public key (and `dynamic_pricing` is write-closed), so without
+    FRATERNY_SUPABASE_SERVICE_KEY the probe asks the narrow read-only database
+    function `pricing_probe_snapshot()` (prices + expired-but-active codes only).
+    With a service key it reads the tables directly, as before.
     """
     SUPABASE_ANON_KEY = (
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
@@ -274,9 +277,22 @@ def probe_pricing_integrity():
 
     sb_headers = {"apikey": api_key, "Authorization": f"Bearer {api_key}",
                   "User-Agent": "WebOpsOS/1.0"}
+    use_snapshot = api_key == SUPABASE_ANON_KEY
+
+    def _post(url, headers):
+        req = urllib.request.Request(url, data=b"{}", method="POST",
+                                     headers={**headers, "Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read().decode("utf-8"))
+
     try:
-        rows = _get(rest + "dynamic_pricing?is_active=eq.true&order=updated_at.desc&limit=1",
-                    sb_headers)
+        snapshot = None
+        if use_snapshot:
+            snapshot = _post(rest + "rpc/pricing_probe_snapshot", sb_headers)
+            rows = [snapshot["price"]] if snapshot.get("price") else []
+        else:
+            rows = _get(rest + "dynamic_pricing?is_active=eq.true&order=updated_at.desc&limit=1",
+                        sb_headers)
         latency = int((time.time() - start_time) * 1000)
         if not rows:
             return {**base, "status": "UNHEALTHY", "code": 0, "latency_ms": latency,
@@ -315,8 +331,11 @@ def probe_pricing_integrity():
                              "are quoted a price the server will not honour: " + "; ".join(drift)}
 
         # 4. active-but-expired discount codes
-        codes = _get(rest + "discount_codes?select=code,discount_percentage,is_active,"
-                            "expires_at&is_active=eq.true", sb_headers)
+        if use_snapshot:
+            codes = snapshot.get("expired_active_codes") or []
+        else:
+            codes = _get(rest + "discount_codes?select=code,discount_percentage,is_active,"
+                                "expires_at&is_active=eq.true", sb_headers)
         now = datetime.now(timezone.utc)
         expired = []
         for c in codes or []:
@@ -333,9 +352,12 @@ def probe_pricing_integrity():
             except Exception:
                 expired.append(f"{c['code']} (unparseable expires_at={exp!r})")
 
-        active_summary = ", ".join(
-            f"{c['code']}={c.get('discount_percentage')}%" for c in (codes or [])
-        ) or "none"
+        if use_snapshot:
+            active_summary = f"{snapshot.get('active_codes')} active (names not visible to the public key)"
+        else:
+            active_summary = ", ".join(
+                f"{c['code']}={c.get('discount_percentage')}%" for c in (codes or [])
+            ) or "none"
         latency = int((time.time() - start_time) * 1000)
 
         if expired:
