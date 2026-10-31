@@ -12,6 +12,9 @@ import datetime
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import netcheck
+
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
@@ -97,15 +100,20 @@ def update_dashboard_health_log(results):
     if "automations" not in health_data or not isinstance(health_data["automations"], dict):
         health_data["automations"] = {}
         
-    failed_sites = [r for r in results if r["status"] != "HEALTHY"]
+    unverified_sites = [r for r in results if r["status"] == "UNVERIFIED"]
+    failed_sites = [r for r in results if r["status"] not in ("HEALTHY", "UNVERIFIED")]
     total_sites = len(results)
-    healthy_count = total_sites - len(failed_sites)
-    
+    healthy_count = sum(1 for r in results if r["status"] == "HEALTHY")
+
     if failed_sites:
         res_tag = "degraded" if healthy_count > 0 else "unhealthy"
         fail_summary = ", ".join([f"{f['site_id']} ({f['error'] or 'Code ' + str(f['code'])})" for f in failed_sites])
         signal = f"🔴 {len(failed_sites)} site issue(s): {fail_summary}"
         note = f"{healthy_count}/{total_sites} sites healthy. Issues detected on: {', '.join([f['site_id'] for f in failed_sites])}"
+    elif unverified_sites:
+        res_tag = "unverified"
+        signal = f"⚪ machine offline, {len(unverified_sites)}/{total_sites} sites not checked"
+        note = "No network from this machine; sites were not reached, so nothing is known about them"
     else:
         res_tag = "healthy"
         signal = f"{healthy_count}/{total_sites} managed websites audited & healthy (all HTTP 200)"
@@ -130,8 +138,9 @@ def update_dashboard_health_log(results):
     
     for r in results:
         folder_key = folder_mapping.get(r["site_id"], r["site_id"])
-        site_result = "healthy" if r["status"] == "HEALTHY" else "unhealthy"
-        site_signal = f"HTTP 200 OK ({r['latency_ms']}ms)" if r["status"] == "HEALTHY" else f"🔴 {r['error'] or 'Code ' + str(r['code'])}"
+        site_result = {"HEALTHY": "healthy", "UNVERIFIED": "unverified"}.get(r["status"], "unhealthy")
+        site_signal = f"HTTP 200 OK ({r['latency_ms']}ms)" if r["status"] == "HEALTHY" else (
+            "⚪ machine offline, not checked" if r["status"] == "UNVERIFIED" else f"🔴 {r['error'] or 'Code ' + str(r['code'])}")
         
         health_data["automations"][folder_key] = {
             "checkedAt": now_iso,
@@ -161,8 +170,11 @@ def main():
     for site in websites:
         res = check_website(site)
         results.append(res)
-        
-        status_tag = "[OK]" if res["status"] == "HEALTHY" else (" [WARN]" if res["status"] == "DEGRADED" else "[FAIL]")
+
+    netcheck.apply_offline(results)
+
+    for res in results:
+        status_tag = "[OK]" if res["status"] == "HEALTHY" else (" [WARN]" if res["status"] == "DEGRADED" else ("[SKIP]" if res["status"] == "UNVERIFIED" else "[FAIL]"))
         print(f" {status_tag} [{res['site_id']}] {res['name']}")
         print(f"   URL: {res['url']} | Code: {res['code']} | Latency: {res['latency_ms']}ms")
         if res["error"]:

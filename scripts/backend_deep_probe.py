@@ -25,6 +25,9 @@ from datetime import datetime, timezone
 import urllib.request
 import urllib.error
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import netcheck
+
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
@@ -425,7 +428,7 @@ def sync_alerts_and_logs(results):
             
         db_telemetry = next((r for r in results if r["id"] == "quest_db_pipeline_telemetry"), None)
         if db_telemetry:
-            res_val = "failed" if db_telemetry["status"] == "UNHEALTHY" else ("degraded" if db_telemetry["status"] == "DEGRADED" else "healthy")
+            res_val = {"UNHEALTHY": "failed", "DEGRADED": "degraded", "UNVERIFIED": "unverified"}.get(db_telemetry["status"], "healthy")
             health_data["lastRun"] = today_str
             health_data["automations"]["fraterny-automation"] = {
                 "checkedAt": now_iso,
@@ -474,6 +477,9 @@ def run_deep_probes():
         print(f"   {price_res['detail']}")
     if price_res["error"]:
         print(f"   Error: {price_res['error']}")
+
+    # Offline laptop: no-answer failures say nothing about the target -> UNVERIFIED
+    netcheck.apply_offline(results)
 
     print("\n" + "=" * 75)
     healthy_count = sum(1 for r in results if r["status"] == "HEALTHY")
