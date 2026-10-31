@@ -12,13 +12,16 @@ This document explains how `web-ops-os` runs 24/7 in the cloud on **GitHub Actio
                   ▼
       [cloud_runner.py Engine]
                   │
-  ┌───────────────┼───────────────┬───────────────┐
-  ▼               ▼               ▼               ▼
-[health_check]  [seo_scanner]   [sec_audit]    [auto_fixer]
-  │
-  ├─► All 200 OK ──────────► Log & Standby
-  └─► SSL Expiry / 500 ────► Send Instant Dark-Mode Email Alert 📧
+  ┌───────────────┼──────────────────────┐
+  ▼               ▼                      ▼
+[health_check]  [backend_deep_probe]   [live_audit + browser/site_smoke.js]
+                  │
+  ├─► Nothing FAILed ──────────────► green run, no email
+  ├─► Any FAIL ─────────────────────► alert email (green run)
+  └─► Any FAIL + email not sent ───► run exits 1 (red) — GitHub's failure email is the fallback
 ```
+
+The runner checks out only this repo, so it audits the live URLs. The local-folder scripts (`seo_scanner`, `sec_audit`, `auto_fixer`) do not run here. The workflow installs Node and runs `npm ci` in `browser/`; the headless check uses the runner's Google Chrome (`CHROME_PATH=/usr/bin/google-chrome`).
 
 ---
 
@@ -47,11 +50,13 @@ Navigate to **GitHub Repo -> Settings -> Secrets and variables -> Actions -> New
 | `GMAIL_APP_PASSWORD` | Google App Password | SMTP authentication (16-char app password). |
 | `ALERT_EMAIL_TO` | `malhotrayash1900@gmail.com` | Destination inbox for instant downtime/SSL alerts. |
 
+Status (2026-11-01): `GMAIL_USER`, `GMAIL_APP_PASSWORD` and `ALERT_EMAIL_TO` are set (the Gmail pair from `%LOCALAPPDATA%\ai-os\secrets\gmail_smtp.json`); run 41241056945 delivered an alert. `GEMINI_API_KEY` is not set and nothing in the cloud run uses it.
+
 
 ---
 
 ## 3. How 24/7 Alerts Work When Your Laptop Is Closed
 
 1. **Every 3 Hours**: GitHub Actions wakes up in the cloud, checks `yashmalhotra.space`, `isaantea.com`, `fraterny.com`, and `iconichomesinfracon.in`.
-2. **If an SSL cert expires or a server crashes**: `cloud_runner.py` formats a dark-mode HTML alert and emails it directly to your inbox within seconds.
+2. **If anything FAILs** (site down, cert under 14 days, broken link, page wider than a phone, JS crash, CSP block, deep-probe failure): `cloud_runner.py` emails a dark-mode HTML alert. If that email cannot be sent, the run goes red instead of green.
 3. **Zero Local Laptop Dependency**: Runs 24/7 365 days a year on GitHub's cloud servers.

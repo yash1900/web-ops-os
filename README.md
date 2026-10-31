@@ -35,9 +35,11 @@ web-ops-os/
 │   └── web-onboard-site.md  # Standardized new website onboarding skill
 └── scripts/                 # Deterministic zero-cost Python scripts
     ├── health_check.py      # Async HTTP endpoint pings & latency scanner
-    ├── seo_scanner.py       # Static HTML/JSX meta tag & ALT auditor
-    ├── sec_audit.py         # Security header & CSP policy auditor
+    ├── live_audit.py        # Live production audit of every site URL (headers, TLS, SEO, links, browser pass)
+    ├── seo_scanner.py       # Local index.html meta tag & ALT check (no network)
+    ├── sec_audit.py         # Local .env / .gitignore / vercel.json check (no network)
     └── sync_registry.py     # Registry resync & memory update script
+browser/site_smoke.js        # Headless Chrome smoke at 375/768/1440 (npm ci in browser/ once)
 ```
 
 ---
@@ -48,10 +50,11 @@ web-ops-os/
 # 1. Run zero-cost health check across all sites
 python scripts/health_check.py
 
-# 2. Run static SEO audit
-python scripts/seo_scanner.py
+# 2. Live production audit of all 4 sites (exit 1 on any FAIL)
+python scripts/live_audit.py
 
-# 3. Run security audit
+# 3. Local-file SEO and security checks (read site folders only)
+python scripts/seo_scanner.py
 python scripts/sec_audit.py
 
 # 4. Resync website registry with parent Automations OS
