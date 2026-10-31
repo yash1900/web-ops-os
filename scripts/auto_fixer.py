@@ -86,33 +86,22 @@ def fix_security_configs(site_path):
         except Exception:
             pass
 
-    # Check vercel.json for CSP headers
+    # Check vercel.json for CSP headers — report only, never write one.
+    # A generic CSP cannot know a site's font/API/CDN origins: the 2026-07-30
+    # auto-generated policy had no font-src and would have broken Google Fonts
+    # in production (see agents/web-verify-ship-agent.md). CSP is hand-authored.
     vercel_json = os.path.join(site_path, "vercel.json")
     if os.path.exists(vercel_json):
         try:
             with open(vercel_json, "r", encoding="utf-8") as f:
                 vdata = json.load(f)
-            headers = vdata.get("headers", [])
-            has_csp = False
-            for h in headers:
-                for item in h.get("headers", []):
-                    if item.get("key", "").lower() == "content-security-policy":
-                        has_csp = True
+            has_csp = any(
+                item.get("key", "").lower() == "content-security-policy"
+                for h in vdata.get("headers", [])
+                for item in h.get("headers", [])
+            )
             if not has_csp:
-                csp_header = {
-                    "source": "/(.*)",
-                    "headers": [
-                        {
-                            "key": "Content-Security-Policy",
-                            "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:;"
-                        }
-                    ]
-                }
-                headers.append(csp_header)
-                vdata["headers"] = headers
-                with open(vercel_json, "w", encoding="utf-8") as f:
-                    json.dump(vdata, f, indent=2)
-                fixes += 1
+                print(f" [INFO] No CSP in {vercel_json} - add one by hand; auto-fixer will not.")
         except Exception:
             pass
 

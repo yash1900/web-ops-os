@@ -13,3 +13,6 @@ __pycache__/
 # Sub-tools & local agent skills
 tools/
 .claude/
+
+# Browser smoke deps (npm ci in browser/)
+browser/node_modules/

@@ -52,7 +52,7 @@
       "production_url": "https://iconichomesinfracon.in",
       "canonical_domain": "iconichomesinfracon.in",
       "tech_stack": ["Static HTML5", "CSS3", "JavaScript", "Google Fonts"],
-      "hosting": "Hostinger / Static",
+      "hosting": "Vercel (static)",
       "github_repo": "github.com/yash1900/iconic-homes-tulsi-tower",
       "spec_file": "registry/iconic-homes.md",
       "health_endpoint": "https://iconichomesinfracon.in",

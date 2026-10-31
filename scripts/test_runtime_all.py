@@ -27,6 +27,9 @@ SCRIPTS_TO_TEST = [
     "update_website_manager.py"
 ]
 
+# Scripts that drive headless Chrome across every site need more than 30s.
+SLOW_SCRIPTS = {"visual_audit.py": 400, "cloud_runner.py": 600}
+
 def run_script_test(script_name):
     script_path = os.path.join(SCRIPTS_DIR, script_name)
     if not os.path.exists(script_path):
@@ -43,10 +46,15 @@ def run_script_test(script_name):
             encoding="utf-8",
             errors="replace",
             env=env,
-            timeout=30
+            timeout=SLOW_SCRIPTS.get(script_name, 30)
         )
-        if res.returncode == 0:
+        # Audits exit 1 when they find real site problems; that is a working script.
+        # A crash is a traceback or any other exit code.
+        crashed = "Traceback (most recent call last)" in (res.stderr or "")
+        if res.returncode == 0 and not crashed:
             return True, f"Exit code 0 | Output length: {len(res.stdout)} chars"
+        if res.returncode == 1 and not crashed:
+            return True, f"Exit code 1 = ran and reported site findings | Output length: {len(res.stdout)} chars"
         else:
             stderr_snippet = res.stderr[-300:] if res.stderr else res.stdout[-300:]
             return False, f"Exit code {res.returncode} | Error: {stderr_snippet.strip()}"

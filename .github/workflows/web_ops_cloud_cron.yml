@@ -13,7 +13,7 @@ permissions:
 jobs:
   run-web-ops-cloud:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -35,9 +35,21 @@ jobs:
             pip install urllib3 python-dotenv
           fi
 
+      # Headless smoke uses the runner's preinstalled Google Chrome via puppeteer-core.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: browser/package-lock.json
+
+      - name: Install browser smoke dependencies
+        working-directory: browser
+        run: npm ci --no-audit --no-fund
+
       - name: Run Web-Ops OS Cloud Sentinel Engine & 24/7 Email Alerts
         env:
           PYTHONUNBUFFERED: "1"
+          CHROME_PATH: /usr/bin/google-chrome
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

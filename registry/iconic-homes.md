@@ -3,7 +3,7 @@
 > Canonical URL: [iconichomesinfracon.in](https://iconichomesinfracon.in)  
 
 > Local Path: `Iconic-homes-Tulsi-tower/`  
-> Hosting: Hostinger / Static Web Server  
+> Hosting: Vercel (static) — live response `server: Vercel`, checked 2026-10-31  
 > Brand Guidelines: [iconic-homes-brand-guidelines.md](file:///c:/Users/amar1/Downloads/Automations/Iconic-homes-Tulsi-tower/iconic-homes-brand-guidelines.md)
 
 ---

@@ -1,8 +1,13 @@
 """
 Web-Ops OS Cloud Runner Engine
 Executed 24/7 on GitHub Actions cloud infrastructure.
-Runs health checks, static SEO, security audits, auto-fixers, autonomous agent triggers,
-and dispatches dark-mode email alerts on website downtime or SSL certificate expiration.
+Runs health pings, backend deep probes and the live production audit (headers, TLS
+expiry, served SEO, broken links, headless-browser smoke) against each production URL,
+and emails an alert on any failure. If something failed and the email could not be
+sent, the run exits 1 so GitHub marks it red instead of reporting green.
+
+The local-folder scripts (seo_scanner, sec_audit, auto_fixer, visual_audit) are not run
+here: this runner checks out only web-ops-os, so the site folders do not exist.
 """
 
 import json
@@ -20,11 +25,8 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, os.path.join(BASE_DIR, "scripts"))
 
 import health_check
-import seo_scanner
-import sec_audit
-import auto_fixer
-import agent_autonomous_runner
 import backend_deep_probe
+import live_audit
 
 def send_alert_email(failed_sites, total_sites):
 
@@ -34,8 +36,8 @@ def send_alert_email(failed_sites, total_sites):
 
 
     if not smtp_user or not smtp_pass or not email_to:
-        print("[INFO] Email alert credentials not configured in secrets. Skipping email dispatch.")
-        return
+        print("[ERROR] Email alert credentials (GMAIL_USER / GMAIL_APP_PASSWORD) not configured. Alert NOT sent.")
+        return False
 
     subject = f"🔴 [ALERT] Web-Ops OS: {len(failed_sites)} Website Issue(s) Detected"
     
@@ -102,8 +104,10 @@ def send_alert_email(failed_sites, total_sites):
             server.sendmail(smtp_user, [email_to], msg.as_string())
 
         print(f"[OK] Alert email dispatched successfully to {email_to}")
+        return True
     except Exception as e:
         print(f"[ERROR] Failed to send alert email: {e}")
+        return False
 
 def main():
     print("=" * 70)
@@ -133,41 +137,21 @@ def main():
     except Exception as e:
         print(f"[WARN] Deep probes error: {e}")
 
-    
-    # 2. Run static SEO audit
-    print("\n--- Running SEO Audit ---")
+    # 3. Live production audit (HTTP + headless browser) against the real URLs
+    print("\n--- Running Live Production Audit ---")
     try:
-        seo_scanner.main()
+        failed_sites += live_audit.failures(live_audit.run())
     except Exception as e:
-        print(f"[WARN] SEO scan error: {e}")
-        
-    # 3. Run security audit
-    print("\n--- Running Security Audit ---")
-    try:
-        sec_audit.main()
-    except Exception as e:
-        print(f"[WARN] Sec audit error: {e}")
-        
-    # 4. Run auto-fixer
-    print("\n--- Running Auto-Fixer ---")
-    try:
-        auto_fixer.main()
-    except Exception as e:
-        print(f"[WARN] Auto-fixer error: {e}")
+        failed_sites.append({"site_id": "live-audit", "url": "", "error": f"live audit crashed: {e}"})
 
-    # 5. Run autonomous agent trigger engine
-    print("\n--- Running Autonomous AI Agent Engine ---")
-    try:
-        agent_autonomous_runner.main()
-    except Exception as e:
-        print(f"[WARN] Autonomous agent runner error: {e}")
-
-    # 6. Dispatch email alert if any site is degraded/unhealthy
+    # 4. Dispatch email alert if anything failed; never go green on an unsent alert
     if failed_sites:
-        print(f"\n⚠️  {len(failed_sites)} site(s) failed health check. Triggering cloud email alert...")
-        send_alert_email(failed_sites, len(results))
+        print(f"\n⚠️  {len(failed_sites)} check group(s) failed. Triggering cloud email alert...")
+        if not send_alert_email(failed_sites, len(results)):
+            print("[ERROR] Failures found and the alert could not be emailed. Exiting 1 so this run shows red.")
+            sys.exit(1)
     else:
-        print("\n🟢 All managed websites are 100% healthy. No alert email required.")
+        print("\n🟢 All managed websites passed. No alert email required.")
 
 if __name__ == "__main__":
     main()

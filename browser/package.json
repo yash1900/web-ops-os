@@ -1,0 +1,11 @@
+{
+  "name": "web-ops-site-smoke",
+  "private": true,
+  "description": "Headless production smoke for every managed site (run via scripts/live_audit.py)",
+  "scripts": {
+    "smoke": "node site_smoke.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "25.13.0"
+  }
+}
