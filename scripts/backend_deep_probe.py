@@ -247,8 +247,10 @@ def probe_pricing_integrity():
       2. The storefront (/api/admin/pricing/display) serves the same numbers as
          that row. Drift means customers see a price the server won't honour.
       3. Prices clear Razorpay's 100 minor-unit floor (Rs.1 / $1).
-      4. No discount code is active while past its expiry — the failure mode
-         where a campaign link keeps working but silently stops discounting.
+      4. Lists discount codes still flagged active past their expiry, as a
+         note only. Checkout already refuses them ("This code has expired",
+         Fraterny app/api/tracking/affiliate/validate-coupon/route.ts), so a
+         stale is_active flag is tidy-up, not an outage, and never alerts.
 
     Read-only and needs zero configuration. Since 2026-10-22 `discount_codes` is
     closed to the public key (and `dynamic_pricing` is write-closed), so without
@@ -363,18 +365,15 @@ def probe_pricing_integrity():
             ) or "none"
         latency = int((time.time() - start_time) * 1000)
 
-        if expired:
-            return {**base, "status": "DEGRADED", "latency_ms": latency,
-                    "error": f"Discount code(s) still flagged active past expiry: "
-                             f"{'; '.join(expired)}. The code still validates but no longer "
-                             f"discounts, so a live campaign link quietly charges full price. "
-                             f"All active codes: {active_summary}"}
+        # Checkout rejects an expired code itself, so this is a note, not an alert.
+        stale = (f"; past expiry but still flagged active (checkout refuses them): "
+                 f"{'; '.join(expired)}") if expired else ""
 
         india = int(row["razorpay_india_price_paise"])
         intl = int(row["razorpay_international_price_cents"])
         return {**base, "status": "HEALTHY", "latency_ms": latency, "error": None,
                 "detail": f"India Rs.{india/100:.2f}, International ${intl/100:.2f}; "
-                          f"storefront matches DB; active codes: {active_summary}"}
+                          f"storefront matches DB; active codes: {active_summary}{stale}"}
 
     except Exception as e:
         return {**base, "status": "UNHEALTHY", "code": 0,
